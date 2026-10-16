@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <title>Tomate Desarrollo Web · Tu marca en cada click</title>
+    <meta name="description" content="Desarrollamos sitios web a la medida para emprendimientos y negocios locales: menús, catálogos, pedidos por WhatsApp y panel de control. Paquetes desde $800 MXN." />
+    <meta name="theme-color" content="#291C0E" />
+    <link rel="icon" type="image/svg+xml" href="./favicon.svg" />
+    <link rel="icon" type="image/png" sizes="32x32" href="./favicon-32.png" />
+    <link rel="apple-touch-icon" href="./apple-touch-icon.png" />
+    <link rel="manifest" href="./site.webmanifest" />
+    <meta property="og:title" content="Tomate Desarrollo Web" />
+    <meta property="og:description" content="Tu marca en cada click. Sitios web a tu estilo, con precios para todos." />
+    <meta property="og:image" content="./og-image.png" />
+    <meta property="og:type" content="website" />
+    <meta property="og:locale" content="es_MX" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Onest:wght@400;500;600&family=Geist+Mono:wght@400;500&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      html{background:#291C0E}body{margin:0}
+      #splash{position:fixed;inset:0;z-index:9999;display:grid;place-items:center;background:radial-gradient(60% 50% at 50% 45%,#4a3020 0%,#291C0E 70%);transition:opacity .6s ease,visibility .6s}
+      #splash.fuera{opacity:0;visibility:hidden}
+      #splash .s-logo{width:84px;height:84px;animation:s-late 1.1s cubic-bezier(.5,0,.3,1) infinite}
+      #splash .s-barra{margin-top:22px;width:120px;height:3px;border-radius:9px;background:rgba(225,212,194,.14);overflow:hidden}
+      #splash .s-barra i{display:block;height:100%;width:40%;border-radius:9px;background:linear-gradient(90deg,#A78D78,#E1D4C2);animation:s-carga 1.2s ease-in-out infinite}
+      @keyframes s-late{0%,100%{transform:scale(1)}40%{transform:scale(1.08)}60%{transform:scale(.97)}}
+      @keyframes s-carga{0%{transform:translateX(-110%)}100%{transform:translateX(280%)}}
+      @media (prefers-reduced-motion:reduce){#splash .s-logo,#splash .s-barra i{animation:none}}
+    </style>
+  </head>
+  <body>
+    <div id="splash" aria-hidden="true">
+      <div style="display:flex;flex-direction:column;align-items:center">
+        <img class="s-logo" src="./favicon.svg" alt="" width="84" height="84" />
+        <div class="s-barra"><i></i></div>
+      </div>
+    </div>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>
