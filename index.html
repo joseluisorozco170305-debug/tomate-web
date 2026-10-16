@@ -10,11 +10,48 @@
     <link rel="icon" type="image/png" sizes="32x32" href="./favicon-32.png" />
     <link rel="apple-touch-icon" href="./apple-touch-icon.png" />
     <link rel="manifest" href="./site.webmanifest" />
-    <meta property="og:title" content="Tomate Desarrollo Web" />
-    <meta property="og:description" content="Tu marca en cada click. Sitios web a tu estilo, con precios para todos." />
-    <meta property="og:image" content="./og-image.png" />
+    <link rel="canonical" href="%SITE_URL%/" />
+    <meta name="robots" content="index, follow" />
+    <meta name="author" content="Tomate Desarrollo Web" />
+
+    <!-- Open Graph: así se ve la liga al compartirla en WhatsApp, Facebook, Instagram, LinkedIn -->
     <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="Tomate Desarrollo Web" />
     <meta property="og:locale" content="es_MX" />
+    <meta property="og:url" content="%SITE_URL%/" />
+    <meta property="og:title" content="Tomate Desarrollo Web · Tu marca en cada click" />
+    <meta property="og:description" content="Páginas web a tu estilo para emprendimientos y negocios locales: menús, catálogos y pedidos directo a WhatsApp. Desde $800 MXN con 1 mes de garantía." />
+    <meta property="og:image" content="%SITE_URL%/og-image.jpg" />
+    <meta property="og:image:secure_url" content="%SITE_URL%/og-image.jpg" />
+    <meta property="og:image:type" content="image/jpeg" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content="Tomate Desarrollo Web: tu marca en cada click. Paquetes desde $800 MXN." />
+
+    <!-- Tarjeta para X / Twitter -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Tomate Desarrollo Web · Tu marca en cada click" />
+    <meta name="twitter:description" content="Páginas web a tu estilo para emprendimientos y negocios locales. Desde $800 MXN." />
+    <meta name="twitter:image" content="%SITE_URL%/og-image.jpg" />
+    <meta name="twitter:image:alt" content="Tomate Desarrollo Web: tu marca en cada click." />
+
+    <!-- Datos estructurados para Google -->
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "ProfessionalService",
+        "name": "Tomate Desarrollo Web",
+        "slogan": "Tu marca en cada click",
+        "description": "Desarrollo de páginas web a la medida para emprendimientos y negocios locales: menús, catálogos, pedidos por WhatsApp y panel de control.",
+        "url": "%SITE_URL%/",
+        "image": "%SITE_URL%/og-image.jpg",
+        "logo": "%SITE_URL%/icon-512.png",
+        "telephone": "+52 56 1628 8303",
+        "areaServed": "MX",
+        "priceRange": "$800 - $1500 MXN",
+        "sameAs": ["https://www.instagram.com/tomateweb.mx/"]
+      }
+    </script>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
