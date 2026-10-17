@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="es-MX">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Página no encontrada · Tomate Desarrollo Web</title>
+    <meta name="robots" content="noindex" />
+    <meta name="theme-color" content="#291C0E" />
+    <link rel="icon" href="/favicon.ico" sizes="any" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700&family=Onest:wght@400;600&family=Geist+Mono:wght@500&display=swap" rel="stylesheet" />
+    <style>
+      :root { --cafe: #291c0e; --cacao: #6e473b; --arena: #a78d78; --piedra: #beb5a9; --crema: #e1d4c2; color-scheme: dark; }
+      * { box-sizing: border-box; }
+      html, body { height: 100%; margin: 0; }
+      body {
+        background:
+          radial-gradient(55% 60% at 15% 10%, rgba(138, 90, 72, 0.7), transparent 70%),
+          radial-gradient(50% 55% at 90% 90%, rgba(167, 141, 120, 0.45), transparent 70%),
+          radial-gradient(40% 45% at 80% 15%, rgba(110, 71, 59, 0.6), transparent 70%),
+          var(--cafe);
+        color: var(--crema);
+        font-family: "Onest", system-ui, sans-serif;
+        display: grid; place-items: center; padding: 16px; overflow: hidden;
+      }
+      .tarjeta {
+        position: relative; width: min(100%, 520px); padding: 48px 36px 40px; text-align: center; border-radius: 32px;
+        background: linear-gradient(155deg, rgba(225, 212, 194, 0.16), rgba(225, 212, 194, 0.05) 55%, rgba(225, 212, 194, 0.1));
+        border: 1px solid rgba(225, 212, 194, 0.28);
+        -webkit-backdrop-filter: blur(20px); backdrop-filter: blur(20px);
+        box-shadow: 0 40px 90px -40px rgba(0, 0, 0, 0.85), inset 0 1px 0 rgba(255, 255, 255, 0.25);
+        animation: sube 0.9s cubic-bezier(0.22, 1, 0.36, 1) both;
+      }
+      .logo { display: block; width: 88px; height: 88px; margin: 0 auto 18px; animation: tambalea 3.2s ease-in-out infinite; }
+      .codigo { display: block; font-family: "Geist Mono", ui-monospace, monospace; font-size: 0.786rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--arena); }
+      h1 { font-family: "Bricolage Grotesque", system-ui, sans-serif; font-weight: 500; font-size: clamp(2.618rem, 9vw, 4.236rem); letter-spacing: -0.04em; line-height: 0.95; margin: 10px 0 16px; text-wrap: balance; }
+      p { margin: 0 auto 28px; max-width: 30ch; line-height: 1.6; color: rgba(225, 212, 194, 0.78); }
+      .botones { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; }
+      .btn {
+        display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-height: 50px; padding: 0 22px; border-radius: 999px;
+        text-decoration: none; font-family: "Geist Mono", ui-monospace, monospace; font-size: 0.786rem; letter-spacing: 0.08em; text-transform: uppercase;
+        transition: transform 0.25s cubic-bezier(0.22, 1, 0.36, 1), background 0.25s;
+      }
+      .btn:hover { transform: translateY(-2px); }
+      .btn:active { transform: scale(0.97); }
+      .primario { background: var(--crema); color: var(--cafe); }
+      .primario:hover { background: #ece2d4; }
+      .fantasma { color: var(--crema); border: 1px solid rgba(225, 212, 194, 0.3); background: rgba(41, 28, 14, 0.35); }
+      .fantasma:hover { background: rgba(225, 212, 194, 0.1); }
+      a:focus-visible { outline: 2px solid var(--arena); outline-offset: 3px; }
+      @keyframes sube { from { opacity: 0; transform: translateY(40px); } to { opacity: 1; transform: none; } }
+      @keyframes tambalea { 0%, 100% { transform: rotate(-6deg); } 50% { transform: rotate(6deg) translateY(-4px); } }
+      @media (prefers-reduced-motion: reduce) { .tarjeta, .logo { animation: none; } }
+    </style>
+  </head>
+  <body>
+    <main class="tarjeta">
+      <img class="logo" src="/favicon.svg" alt="Logo de Tomate Desarrollo Web" width="88" height="88" />
+      <span class="codigo">Error 404</span>
+      <h1>Este tomate se nos perdió.</h1>
+      <p>La página que buscas no existe o cambió de lugar. Regresa al inicio y encuentra tu paquete.</p>
+      <div class="botones">
+        <a class="btn primario" href="/">Volver al inicio</a>
+        <a class="btn fantasma" href="https://wa.me/525616288303?text=Hola%20Tomate%20%F0%9F%8D%85%2C%20quiero%20informaci%C3%B3n%20para%20hacer%20mi%20p%C3%A1gina%20web." target="_blank" rel="noopener noreferrer">Escríbenos</a>
+      </div>
+    </main>
+  </body>
+</html>

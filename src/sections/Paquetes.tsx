@@ -8,6 +8,12 @@ import { reduceMovimiento } from "../lib/scroll";
 function Contador({ valor }: { valor: number }) {
   const ref = useRef<HTMLSpanElement>(null);
   const visto = useInView(ref, { once: true, margin: "-15% 0px" });
+  // Al cargar, si todavía no se ve, lo dejamos en 0 para que cuente al aparecer
+  useEffect(() => {
+    if (ref.current && !reduceMovimiento() && ref.current.getBoundingClientRect().top > window.innerHeight) {
+      ref.current.textContent = "0";
+    }
+  }, []);
   useEffect(() => {
     if (!visto || !ref.current) return;
     if (reduceMovimiento()) {
@@ -23,7 +29,7 @@ function Contador({ valor }: { valor: number }) {
     });
     return () => c.stop();
   }, [visto, valor]);
-  return <span ref={ref} className="num">0</span>;
+  return <span ref={ref} className="num">{valor.toLocaleString("es-MX")}</span>;
 }
 
 function Tarjeta({ p, i, alElegir }: { p: Paquete; i: number; alElegir: (id: string) => void }) {

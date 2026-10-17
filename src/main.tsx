@@ -1,40 +1,11 @@
-import { Component, StrictMode, type ReactNode } from "react";
-import { createRoot } from "react-dom/client";
-import { MotionConfig } from "framer-motion";
-import App from "./App";
+import { createRoot, hydrateRoot } from "react-dom/client";
+import { Raiz } from "./Raiz";
 import { iniciarScroll } from "./lib/scroll";
 import "./styles.css";
 
-class ErrorGlobal extends Component<{ children: ReactNode }, { error: boolean }> {
-  state = { error: false };
-  static getDerivedStateFromError() {
-    return { error: true };
-  }
-  render() {
-    if (!this.state.error) return this.props.children;
-    document.getElementById("splash")?.remove();
-    return (
-      <div className="error-global">
-        <div className="vidrio" style={{ padding: "2.618rem", maxWidth: 440 }}>
-          <h1 style={{ fontSize: "2.058rem" }}>Algo se nos quemó 🍅</h1>
-          <p style={{ margin: "1rem 0 1.618rem", color: "var(--texto-2)" }}>
-            La página tuvo un error al cargar. Recárgala y debería quedar.
-          </p>
-          <button className="btn btn-primario" onClick={() => location.reload()}>Recargar página</button>
-        </div>
-      </div>
-    );
-  }
-}
-
 iniciarScroll();
 
-createRoot(document.getElementById("root")!).render(
-  <StrictMode>
-    <ErrorGlobal>
-      <MotionConfig reducedMotion="user">
-        <App />
-      </MotionConfig>
-    </ErrorGlobal>
-  </StrictMode>
-);
+const raiz = document.getElementById("root")!;
+// Si el HTML ya viene pre-renderizado (producción), React solo "despierta" lo que ya está; si no (modo dev), lo dibuja.
+if (raiz.hasChildNodes()) hydrateRoot(raiz, <Raiz />);
+else createRoot(raiz).render(<Raiz />);

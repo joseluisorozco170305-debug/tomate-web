@@ -1,15 +1,16 @@
 <!doctype html>
-<html lang="es">
+<html lang="es-MX">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
     <title>Tomate Desarrollo Web · Tu marca en cada click</title>
     <meta name="description" content="Desarrollamos sitios web a la medida para emprendimientos y negocios locales: menús, catálogos, pedidos por WhatsApp y panel de control. Paquetes desde $800 MXN." />
     <meta name="theme-color" content="#291C0E" />
-    <link rel="icon" type="image/svg+xml" href="./favicon.svg" />
-    <link rel="icon" type="image/png" sizes="32x32" href="./favicon-32.png" />
-    <link rel="apple-touch-icon" href="./apple-touch-icon.png" />
-    <link rel="manifest" href="./site.webmanifest" />
+    <link rel="icon" href="/favicon.ico" sizes="any" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="icon" type="image/png" sizes="96x96" href="/favicon-96.png" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <link rel="manifest" href="/site.webmanifest" />
     <link rel="canonical" href="%SITE_URL%/" />
     <meta name="robots" content="index, follow" />
     <meta name="author" content="Tomate Desarrollo Web" />
@@ -35,23 +36,8 @@
     <meta name="twitter:image" content="%SITE_URL%/og-image.jpg" />
     <meta name="twitter:image:alt" content="Tomate Desarrollo Web: tu marca en cada click." />
 
-    <!-- Datos estructurados para Google -->
-    <script type="application/ld+json">
-      {
-        "@context": "https://schema.org",
-        "@type": "ProfessionalService",
-        "name": "Tomate Desarrollo Web",
-        "slogan": "Tu marca en cada click",
-        "description": "Desarrollo de páginas web a la medida para emprendimientos y negocios locales: menús, catálogos, pedidos por WhatsApp y panel de control.",
-        "url": "%SITE_URL%/",
-        "image": "%SITE_URL%/og-image.jpg",
-        "logo": "%SITE_URL%/icon-512.png",
-        "telephone": "+52 56 1628 8303",
-        "areaServed": "MX",
-        "priceRange": "$800 - $1500 MXN",
-        "sameAs": ["https://www.instagram.com/tomateweb.mx/"]
-      }
-    </script>
+    <!-- Datos estructurados para Google y asistentes de IA (se generan desde src/data/contenido.ts) -->
+    <script type="application/ld+json">%JSON_LD%</script>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
