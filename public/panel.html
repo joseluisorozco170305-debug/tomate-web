@@ -1,0 +1,660 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<title>Asistente Tomate</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🍅</text></svg>" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,700&display=swap" rel="stylesheet" />
+<style>
+  :root {
+    --espresso: #291c0e;
+    --cacao: #6e473b;
+    --latte: #a78d78;
+    --stone: #beb5a9;
+    --cream: #e1d4c2;
+    --tomato: #c8452e;
+    --leaf: #4f7a46;
+    --bg: #efe6da;
+    --ink: var(--espresso);
+    --muted: #7b6a5c;
+    --glass: rgba(255, 250, 243, 0.55);
+    --glass-strong: rgba(255, 250, 243, 0.82);
+    --line: rgba(110, 71, 59, 0.16);
+    --shadow: 0 10px 30px -12px rgba(41, 28, 14, 0.25);
+    --r: 18px;
+  }
+  * { box-sizing: border-box; }
+  html, body { height: 100%; }
+  body {
+    margin: 0;
+    font-family: 'DM Sans', system-ui, sans-serif;
+    color: var(--ink);
+    background: var(--bg);
+    overflow: hidden;
+  }
+  body::before {
+    content: '';
+    position: fixed; inset: -20%;
+    background:
+      radial-gradient(40% 35% at 15% 20%, rgba(200, 69, 46, 0.22), transparent 70%),
+      radial-gradient(45% 40% at 85% 15%, rgba(167, 141, 120, 0.45), transparent 70%),
+      radial-gradient(50% 45% at 70% 90%, rgba(110, 71, 59, 0.28), transparent 70%),
+      radial-gradient(40% 40% at 10% 85%, rgba(225, 212, 194, 0.9), transparent 70%);
+    filter: blur(30px);
+    animation: drift 24s ease-in-out infinite alternate;
+    z-index: -1;
+  }
+  @keyframes drift { to { transform: translate3d(3%, -2%, 0) rotate(4deg); } }
+  @media (prefers-reduced-motion: reduce) { body::before { animation: none; } }
+
+  h1, h2, h3, .display { font-family: 'Bricolage Grotesque', sans-serif; letter-spacing: -0.02em; margin: 0; }
+  button, input, textarea { font: inherit; color: inherit; }
+  .glass {
+    background: var(--glass);
+    backdrop-filter: blur(18px) saturate(1.3);
+    -webkit-backdrop-filter: blur(18px) saturate(1.3);
+    border: 1px solid rgba(255, 255, 255, 0.55);
+    box-shadow: var(--shadow);
+    border-radius: var(--r);
+  }
+  .btn {
+    border: 0; cursor: pointer; border-radius: 999px; padding: 9px 16px; font-weight: 700; font-size: 14px;
+    background: var(--espresso); color: var(--cream); transition: transform .15s, background .15s, opacity .15s;
+    display: inline-flex; align-items: center; gap: 6px; white-space: nowrap;
+  }
+  .btn:hover { transform: translateY(-1px); background: var(--cacao); }
+  .btn:active { transform: translateY(0); }
+  .btn:disabled { opacity: .5; cursor: default; transform: none; }
+  .btn.ghost { background: transparent; color: var(--espresso); box-shadow: inset 0 0 0 1.5px var(--line); }
+  .btn.ghost:hover { background: rgba(255,255,255,.5); }
+  .btn.tomato { background: var(--tomato); color: #fff; }
+  .btn.sm { padding: 6px 12px; font-size: 13px; }
+  :focus-visible { outline: 2px solid var(--tomato); outline-offset: 2px; }
+
+  /* ── Login ── */
+  #login { position: fixed; inset: 0; display: grid; place-items: center; padding: 16px; }
+  #login form { width: min(380px, 100%); padding: 32px 28px; text-align: center; }
+  #login .logo { font-size: 54px; line-height: 1; }
+  #login h1 { font-size: 30px; margin: 10px 0 4px; }
+  #login p { color: var(--muted); margin: 0 0 22px; }
+  .field {
+    width: 100%; padding: 12px 16px; border-radius: 14px; border: 1.5px solid var(--line);
+    background: var(--glass-strong); outline: none; transition: border-color .15s;
+  }
+  .field:focus { border-color: var(--cacao); }
+  #login .btn { width: 100%; justify-content: center; margin-top: 12px; padding: 12px; }
+  #loginErr { color: var(--tomato); font-size: 14px; min-height: 20px; margin-top: 10px; }
+
+  /* ── App ── */
+  #app { display: none; height: 100dvh; flex-direction: column; padding: 14px; gap: 12px; max-width: 1440px; margin: 0 auto; }
+  header.top { display: flex; align-items: center; gap: 14px; padding: 10px 14px; }
+  .brand { display: flex; align-items: center; gap: 10px; }
+  .brand .logo { font-size: 28px; }
+  .brand h1 { font-size: 20px; line-height: 1; }
+  .brand small { display: block; color: var(--muted); font-size: 12px; margin-top: 3px; }
+  nav.tabs { display: flex; gap: 4px; margin-left: auto; background: rgba(255,255,255,.4); padding: 4px; border-radius: 999px; }
+  nav.tabs button { border: 0; background: none; padding: 7px 14px; border-radius: 999px; cursor: pointer; font-weight: 600; font-size: 14px; color: var(--muted); }
+  nav.tabs button.on { background: var(--espresso); color: var(--cream); }
+  .switch { display: flex; align-items: center; gap: 8px; font-weight: 700; font-size: 14px; cursor: pointer; user-select: none; }
+  .switch input { display: none; }
+  .switch .track { width: 44px; height: 26px; border-radius: 99px; background: var(--stone); position: relative; transition: background .2s; flex: none; }
+  .switch .track::after { content: ''; position: absolute; top: 3px; left: 3px; width: 20px; height: 20px; border-radius: 50%; background: #fff; transition: transform .2s; box-shadow: 0 2px 6px rgba(0,0,0,.2); }
+  .switch input:checked + .track { background: var(--leaf); }
+  .switch input:checked + .track::after { transform: translateX(18px); }
+
+  #warnings { display: none; padding: 10px 16px; font-size: 13.5px; border-left: 4px solid var(--tomato); }
+  #warnings ul { margin: 4px 0 0; padding-left: 18px; }
+
+  .view { display: none; flex: 1; min-height: 0; gap: 12px; }
+  .view.on { display: flex; }
+
+  /* stats */
+  .stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; padding: 12px; }
+  .stat { background: rgba(255,255,255,.45); border-radius: 12px; padding: 8px 10px; }
+  .stat b { display: block; font-family: 'Bricolage Grotesque'; font-size: 22px; line-height: 1.1; }
+  .stat span { font-size: 11.5px; color: var(--muted); }
+
+  /* chats */
+  aside.list { width: 360px; flex: none; display: flex; flex-direction: column; min-height: 0; overflow: hidden; }
+  .filters { display: flex; gap: 6px; padding: 0 12px 10px; flex-wrap: wrap; }
+  .chip { border: 0; padding: 5px 11px; border-radius: 99px; font-size: 13px; font-weight: 600; cursor: pointer; background: rgba(255,255,255,.5); color: var(--muted); }
+  .chip.on { background: var(--cacao); color: var(--cream); }
+  .search { margin: 0 12px 10px; width: calc(100% - 24px); padding: 9px 14px; font-size: 14px; }
+  #convList { overflow-y: auto; flex: 1; padding: 0 8px 8px; }
+  .conv { display: grid; grid-template-columns: 42px 1fr auto; gap: 10px; align-items: center; padding: 10px; border-radius: 14px; cursor: pointer; transition: background .15s; }
+  .conv:hover { background: rgba(255,255,255,.45); }
+  .conv.on { background: var(--glass-strong); box-shadow: 0 4px 14px -8px rgba(41,28,14,.35); }
+  .avatar { width: 42px; height: 42px; border-radius: 50%; display: grid; place-items: center; font-weight: 800; color: #fff; font-family: 'Bricolage Grotesque'; font-size: 17px; }
+  .conv .who { font-weight: 700; font-size: 14.5px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .conv .prev { font-size: 13px; color: var(--muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .conv .meta { display: flex; flex-direction: column; align-items: flex-end; gap: 4px; font-size: 11.5px; color: var(--muted); }
+  .badge { min-width: 20px; height: 20px; border-radius: 99px; background: var(--tomato); color: #fff; font-size: 11.5px; font-weight: 700; display: grid; place-items: center; padding: 0 6px; }
+  .dot { font-size: 13px; }
+  .empty { text-align: center; color: var(--muted); padding: 40px 20px; font-size: 14px; }
+  .empty .big { font-size: 40px; display: block; margin-bottom: 8px; }
+
+  section.detail { flex: 1; display: flex; flex-direction: column; min-width: 0; min-height: 0; overflow: hidden; }
+  .dhead { display: flex; align-items: center; gap: 12px; padding: 12px 16px; border-bottom: 1px solid var(--line); flex-wrap: wrap; }
+  .dhead .who { font-weight: 800; font-size: 17px; font-family: 'Bricolage Grotesque'; }
+  .dhead .sub { font-size: 12.5px; color: var(--muted); }
+  .dhead .actions { margin-left: auto; display: flex; gap: 6px; flex-wrap: wrap; align-items: center; }
+  .back { display: none; }
+  .flag { margin: 10px 16px 0; padding: 9px 12px; border-radius: 12px; background: rgba(200,69,46,.12); color: #8e2a18; font-size: 13.5px; display: flex; gap: 8px; align-items: center; }
+  .flag .btn { margin-left: auto; }
+  .pausebar { margin: 10px 16px 0; padding: 9px 12px; border-radius: 12px; background: rgba(110,71,59,.12); font-size: 13.5px; }
+
+  .dbody { flex: 1; display: grid; grid-template-columns: 1fr 290px; min-height: 0; }
+  .msgs { overflow-y: auto; padding: 16px; display: flex; flex-direction: column; gap: 6px; }
+  .bubble { max-width: 76%; padding: 9px 13px; border-radius: 18px; font-size: 14.5px; line-height: 1.4; white-space: pre-wrap; word-wrap: break-word; position: relative; }
+  .bubble small { display: block; font-size: 10.5px; opacity: .65; margin-top: 3px; }
+  .m-user { align-self: flex-start; background: #fff; border-bottom-left-radius: 6px; }
+  .m-bot { align-self: flex-end; background: var(--espresso); color: var(--cream); border-bottom-right-radius: 6px; }
+  .m-human { align-self: flex-end; background: var(--tomato); color: #fff; border-bottom-right-radius: 6px; }
+  .m-system { align-self: center; background: transparent; color: var(--muted); font-size: 12.5px; font-style: italic; text-align: center; max-width: 90%; }
+  .daysep { align-self: center; font-size: 11.5px; color: var(--muted); margin: 8px 0 2px; background: rgba(255,255,255,.5); padding: 2px 10px; border-radius: 99px; }
+
+  .insight { border-left: 1px solid var(--line); padding: 16px; overflow-y: auto; font-size: 13.5px; }
+  .insight h3 { font-size: 15px; margin-bottom: 10px; }
+  .kv { display: grid; grid-template-columns: auto 1fr; gap: 6px 10px; margin-bottom: 16px; }
+  .kv dt { color: var(--muted); }
+  .kv dd { margin: 0; font-weight: 600; text-align: right; }
+  .tag { display: inline-block; padding: 2px 9px; border-radius: 99px; font-size: 12px; font-weight: 700; background: rgba(110,71,59,.14); }
+  .tag.pos { background: rgba(79,122,70,.18); color: #2f5229; }
+  .tag.neg { background: rgba(200,69,46,.16); color: #8e2a18; }
+  .resumen { background: rgba(255,255,255,.5); border-radius: 12px; padding: 10px 12px; margin-bottom: 16px; line-height: 1.45; }
+
+  .composer { display: flex; gap: 8px; padding: 12px 16px; border-top: 1px solid var(--line); align-items: flex-end; }
+  .composer textarea { flex: 1; resize: none; min-height: 44px; max-height: 140px; padding: 11px 14px; border-radius: 22px; }
+  .hint { font-size: 11.5px; color: var(--muted); padding: 0 16px 10px; margin-top: -6px; }
+
+  /* simulador */
+  #view-sim .simchat { flex: 1; display: flex; flex-direction: column; min-width: 0; overflow: hidden; }
+  #view-sim .insight { width: 330px; flex: none; border-left: 0; }
+
+  /* cerebro */
+  #view-brain { overflow-y: auto; flex-direction: column; }
+  .brain { padding: 20px; display: grid; gap: 18px; grid-template-columns: 1fr 1fr; }
+  .brain .full { grid-column: 1 / -1; }
+  .brain label.lbl { display: block; font-weight: 700; margin-bottom: 4px; }
+  .brain .help { font-size: 13px; color: var(--muted); margin: 0 0 8px; }
+  .brain textarea.field { min-height: 260px; font-size: 13.5px; line-height: 1.5; font-family: ui-monospace, 'SF Mono', Menlo, monospace; resize: vertical; }
+  .brain .row { display: flex; gap: 12px; flex-wrap: wrap; }
+  .brain .row > div { flex: 1; min-width: 160px; }
+  .savebar { position: sticky; bottom: 0; display: flex; gap: 10px; align-items: center; justify-content: flex-end; padding: 12px 20px; margin: 0 -1px -1px; border-top: 1px solid var(--line); background: var(--glass-strong); border-radius: 0 0 var(--r) var(--r); }
+  .savebar span { margin-right: auto; color: var(--muted); font-size: 13.5px; }
+
+  #toast { position: fixed; left: 50%; bottom: 22px; transform: translateX(-50%) translateY(30px); opacity: 0; transition: .25s; padding: 10px 18px; border-radius: 99px; background: var(--espresso); color: var(--cream); font-weight: 600; font-size: 14px; pointer-events: none; z-index: 10; max-width: calc(100% - 32px); }
+  #toast.on { opacity: 1; transform: translateX(-50%); }
+  #toast.err { background: var(--tomato); }
+
+  @media (max-width: 1100px) {
+    .dbody { grid-template-columns: 1fr; }
+    .dbody .insight { display: none; }
+    .dbody.show-insight .insight { display: block; border-left: 0; border-top: 1px solid var(--line); max-height: 45%; }
+    .only-wide { display: none !important; }
+  }
+  @media (min-width: 1101px) { .only-narrow { display: none !important; } }
+  @media (max-width: 760px) {
+    #app { padding: 8px; gap: 8px; }
+    header.top { flex-wrap: wrap; }
+    nav.tabs { order: 3; width: 100%; margin: 0; justify-content: space-between; }
+    nav.tabs button { flex: 1; }
+    .brand small { display: none; }
+    .switch { margin-left: auto; }
+    aside.list { width: 100%; }
+    #view-chats.has-detail aside.list { display: none; }
+    #view-chats:not(.has-detail) section.detail { display: none; }
+    .back { display: inline-flex; }
+    .stats { grid-template-columns: repeat(2, 1fr); }
+    #view-sim { flex-direction: column; }
+    #view-sim .insight { width: 100%; max-height: 40%; }
+    .brain { grid-template-columns: 1fr; padding: 14px; }
+    .bubble { max-width: 88%; }
+  }
+</style>
+</head>
+<body>
+
+<div id="login">
+  <form class="glass" id="loginForm">
+    <div class="logo">🍅</div>
+    <h1>Asistente Tomate</h1>
+    <p>Tu copiloto para los DMs de Instagram</p>
+    <input class="field" type="password" id="pw" placeholder="Contraseña del panel" autocomplete="current-password" required />
+    <button class="btn" type="submit">Entrar</button>
+    <div id="loginErr"></div>
+  </form>
+</div>
+
+<div id="app">
+  <header class="top glass">
+    <div class="brand">
+      <span class="logo">🍅</span>
+      <div><h1>Asistente Tomate</h1><small id="modelInfo">@tomateweb.mx</small></div>
+    </div>
+    <nav class="tabs" role="tablist">
+      <button data-tab="chats" class="on">Chats</button>
+      <button data-tab="sim">Simulador</button>
+      <button data-tab="brain">Cerebro</button>
+    </nav>
+    <label class="switch" title="Prender o apagar el bot para todos los chats">
+      <input type="checkbox" id="botSwitch" />
+      <span class="track"></span>
+      <span id="botLabel">Bot</span>
+    </label>
+  </header>
+
+  <div id="warnings" class="glass"></div>
+
+  <!-- CHATS -->
+  <div class="view on" id="view-chats">
+    <aside class="list glass">
+      <div class="stats" id="stats"></div>
+      <div class="filters">
+        <button class="chip on" data-filter="all">Todos</button>
+        <button class="chip" data-filter="flagged">🚩 Para ti</button>
+        <button class="chip" data-filter="paused">⏸ Pausados</button>
+        <button class="chip" data-filter="leads">✨ Leads</button>
+      </div>
+      <input class="field search" id="search" placeholder="Buscar por usuario o mensaje…" />
+      <div id="convList"></div>
+    </aside>
+    <section class="detail glass" id="detail">
+      <div class="empty" style="margin:auto"><span class="big">💬</span>Elige un chat para ver qué está pasando</div>
+    </section>
+  </div>
+
+  <!-- SIMULADOR -->
+  <div class="view" id="view-sim">
+    <section class="simchat glass">
+      <div class="dhead">
+        <div><div class="who">Simulador</div><div class="sub">Escríbele como si fueras un cliente. No se manda nada a Instagram.</div></div>
+        <div class="actions"><button class="btn ghost sm" id="simReset">↺ Nueva conversación</button></div>
+      </div>
+      <div class="msgs" id="simMsgs">
+        <div class="empty"><span class="big">🧪</span>Prueba cosas como “hola, cuánto cuesta una página para mi taquería?”</div>
+      </div>
+      <form class="composer" id="simForm">
+        <textarea class="field" id="simInput" rows="1" placeholder="Escribe como cliente…"></textarea>
+        <button class="btn" type="submit" id="simSend">Enviar</button>
+      </form>
+    </section>
+    <aside class="insight glass" id="simInsight">
+      <h3>Lo que entendió la IA</h3>
+      <p class="help" style="color:var(--muted)">Aquí verás el análisis de cada mensaje.</p>
+    </aside>
+  </div>
+
+  <!-- CEREBRO -->
+  <div class="view" id="view-brain">
+    <form class="glass" id="brainForm" style="display:flex;flex-direction:column;min-height:min-content">
+      <div class="brain">
+        <div class="full">
+          <h2>Cerebro del asistente</h2>
+          <p class="help">Lo que pongas aquí es lo que sabe y cómo habla. Cambias algo, guardas, y lo pruebas en el Simulador.</p>
+        </div>
+        <div>
+          <label class="lbl" for="personality">Personalidad y misión</label>
+          <p class="help">Cómo habla, qué tono usa y cuál es su chamba.</p>
+          <textarea class="field" id="personality"></textarea>
+          <button type="button" class="btn ghost sm" data-reset="personality" style="margin-top:6px">Restaurar original</button>
+        </div>
+        <div>
+          <label class="lbl" for="knowledge">Info del negocio</label>
+          <p class="help">Paquetes, precios, proceso, links. Su única fuente de verdad: si no está aquí, no lo inventa.</p>
+          <textarea class="field" id="knowledge"></textarea>
+          <button type="button" class="btn ghost sm" data-reset="knowledge" style="margin-top:6px">Restaurar original</button>
+        </div>
+        <div class="full row">
+          <div>
+            <label class="lbl" for="debounceSeconds">Espera antes de contestar (seg)</label>
+            <p class="help">Para juntar mensajes seguidos y no contestar a medias.</p>
+            <input class="field" type="number" min="0" max="60" id="debounceSeconds" />
+          </div>
+          <div>
+            <label class="lbl" for="humanTakeoverHours">Pausa cuando tú contestas (horas)</label>
+            <p class="help">Si escribes tú en un chat, el bot se calla ahí este tiempo.</p>
+            <input class="field" type="number" min="0" max="168" id="humanTakeoverHours" />
+          </div>
+          <div>
+            <label class="lbl" for="historyLimit">Mensajes de memoria</label>
+            <p class="help">Cuánto historial lee para entender el contexto.</p>
+            <input class="field" type="number" min="2" max="60" id="historyLimit" />
+          </div>
+        </div>
+        <div>
+          <label class="switch" style="margin-bottom:6px"><input type="checkbox" id="disclosureEnabled" /><span class="track"></span>Avisar que es asistente</label>
+          <p class="help">Se agrega solo en el primer mensaje de cada chat. Meta lo recomienda y genera confianza.</p>
+          <input class="field" id="disclosureText" />
+        </div>
+        <div>
+          <label class="lbl" for="fallbackMessage">Mensaje de respaldo</label>
+          <p class="help">Si la IA falla (sin cupo, sin internet), manda esto. Vacío = no manda nada.</p>
+          <input class="field" id="fallbackMessage" />
+        </div>
+      </div>
+      <div class="savebar">
+        <span id="brainStatus">Sin cambios</span>
+        <button class="btn" type="submit">Guardar cerebro</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<script>
+const $ = (s, el = document) => el.querySelector(s);
+const $$ = (s, el = document) => [...el.querySelectorAll(s)];
+const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+
+let KEY = '';
+try { KEY = localStorage.getItem('tomate-panel-key') || ''; } catch {}
+let STATE = null, CONVS = [], CURRENT = null, FILTER = 'all', DEFAULTS = {};
+let brainDirty = false;
+
+const INTENT = {
+  saludo: '👋 Saludo', info_paquetes: '📦 Info de paquetes', cotizacion: '💰 Cotización', dudas_proceso: '🛠 Dudas del proceso',
+  portafolio: '🖼 Portafolio', soporte_cliente: '🧰 Soporte', colaboracion: '🤝 Colaboración', queja: '😤 Queja',
+  personal: '🙋 Personal', spam: '🗑 Spam', otro: '💬 Otro',
+};
+const PKG = { ninguno: '—', pa_que_te_organices: "Pa' que te organices", pa_que_lo_controles: "Pa' que lo controles", pa_que_mejoren_las_ventas: "Pa' que mejoren las ventas" };
+const LEAD = { nombre: 'Nombre', negocio: 'Negocio', necesidad: 'Necesita', presupuesto: 'Presupuesto' };
+const COLORS = ['#6e473b', '#a78d78', '#c8452e', '#4f7a46', '#291c0e', '#8b5e4a'];
+
+function toast(msg, err) {
+  const t = $('#toast');
+  t.textContent = msg; t.className = 'on' + (err ? ' err' : '');
+  clearTimeout(t._t); t._t = setTimeout(() => (t.className = ''), 2600);
+}
+
+async function api(path, opts = {}) {
+  const res = await fetch('/api' + path, {
+    ...opts,
+    headers: { 'Content-Type': 'application/json', 'x-panel-key': KEY, ...(opts.headers || {}) },
+    body: opts.body ? JSON.stringify(opts.body) : undefined,
+  });
+  const data = await res.json().catch(() => ({}));
+  if (res.status === 401) { logout(); throw new Error('Contraseña incorrecta'); }
+  if (!res.ok) throw new Error(data.error || 'Error ' + res.status);
+  return data;
+}
+
+// ── Login ──
+$('#loginForm').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  KEY = $('#pw').value;
+  try {
+    await api('/state');
+    try { localStorage.setItem('tomate-panel-key', KEY); } catch {}
+    start();
+  } catch (err) { $('#loginErr').textContent = err.message; }
+});
+function logout() {
+  try { localStorage.removeItem('tomate-panel-key'); } catch {}
+  $('#app').style.display = 'none'; $('#login').style.display = 'grid';
+}
+
+async function start() {
+  $('#login').style.display = 'none'; $('#app').style.display = 'flex';
+  await refreshState(true);
+  await refreshConvs();
+  setInterval(() => { refreshState(); refreshConvs(); if (CURRENT) openConv(CURRENT, true); }, 5000);
+}
+
+// ── Estado general ──
+async function refreshState(first) {
+  STATE = await api('/state');
+  DEFAULTS = STATE.defaults;
+  const s = STATE.settings, st = STATE.stats;
+  $('#botSwitch').checked = s.botEnabled;
+  $('#botLabel').textContent = s.botEnabled ? 'Bot prendido' : 'Bot apagado';
+  $('#modelInfo').textContent = STATE.mock ? '🧪 Modo demo (IA simulada)' : `@tomateweb.mx · ${STATE.model}`;
+  const w = $('#warnings');
+  if (STATE.warnings.length) { w.style.display = 'block'; w.innerHTML = '<b>Te falta configurar:</b><ul>' + STATE.warnings.map((x) => `<li>${esc(x)}</li>`).join('') + '</ul>'; }
+  else w.style.display = 'none';
+  $('#stats').innerHTML = [
+    [st.in24, 'mensajes hoy'], [st.bot24, 'respondidos'], [st.flagged, 'para ti 🚩'], [st.leads, 'leads ✨'],
+  ].map(([n, l]) => `<div class="stat"><b>${n}</b><span>${l}</span></div>`).join('');
+  if (first || !brainDirty) fillBrain(s);
+}
+
+$('#botSwitch').addEventListener('change', async (e) => {
+  try {
+    await api('/settings', { method: 'PUT', body: { botEnabled: e.target.checked } });
+    toast(e.target.checked ? 'Bot prendido 🍅' : 'Bot apagado: ahora contestas tú');
+    refreshState();
+  } catch (err) { toast(err.message, true); }
+});
+
+// ── Tabs ──
+$$('nav.tabs button').forEach((b) => b.addEventListener('click', () => {
+  $$('nav.tabs button').forEach((x) => x.classList.toggle('on', x === b));
+  $$('.view').forEach((v) => v.classList.toggle('on', v.id === 'view-' + b.dataset.tab));
+}));
+
+// ── Lista de chats ──
+$$('.chip').forEach((c) => c.addEventListener('click', () => {
+  FILTER = c.dataset.filter; $$('.chip').forEach((x) => x.classList.toggle('on', x === c)); renderList();
+}));
+$('#search').addEventListener('input', renderList);
+
+async function refreshConvs() { CONVS = await api('/conversations'); renderList(); }
+
+function who(c) { return c.username ? '@' + c.username : c.name || 'Usuario ' + String(c.id).slice(-5); }
+function color(id) { let h = 0; for (const ch of String(id)) h = (h * 31 + ch.charCodeAt(0)) >>> 0; return COLORS[h % COLORS.length]; }
+function ago(ts) {
+  const d = (Date.now() - ts) / 1000;
+  if (d < 60) return 'ahorita'; if (d < 3600) return Math.floor(d / 60) + ' min';
+  if (d < 86400) return Math.floor(d / 3600) + ' h';
+  return new Date(ts).toLocaleDateString('es-MX', { day: 'numeric', month: 'short' });
+}
+
+function renderList() {
+  const q = $('#search').value.toLowerCase().trim();
+  const list = CONVS.filter((c) => {
+    if (FILTER === 'flagged' && !c.flagged) return false;
+    if (FILTER === 'paused' && !c.isPaused) return false;
+    if (FILTER === 'leads' && !(c.hasLead || ['cotizacion', 'info_paquetes'].includes(c.intent))) return false;
+    if (q && !(who(c).toLowerCase().includes(q) || (c.lastMessage?.text || '').toLowerCase().includes(q))) return false;
+    return true;
+  });
+  const el = $('#convList');
+  if (!list.length) {
+    el.innerHTML = `<div class="empty"><span class="big">${CONVS.length ? '🔍' : '📭'}</span>${CONVS.length ? 'Nada por aquí con ese filtro' : 'Aún no llegan mensajes.<br>Mientras, pruébalo en el Simulador.'}</div>`;
+    return;
+  }
+  el.innerHTML = list.map((c) => {
+    const lm = c.lastMessage;
+    const prefix = lm ? (lm.from === 'bot' ? '🤖 ' : lm.from === 'human' ? 'Tú: ' : '') : '';
+    const name = who(c);
+    return `<div class="conv ${c.id === CURRENT ? 'on' : ''}" data-id="${esc(c.id)}">
+      <div class="avatar" style="background:${color(c.id)}">${esc(name.replace('@', '')[0]?.toUpperCase() || '?')}</div>
+      <div style="min-width:0"><div class="who">${esc(name)}</div><div class="prev">${esc(prefix + (lm?.text || ''))}</div></div>
+      <div class="meta">${ago(c.updatedAt)}
+        <div style="display:flex;gap:4px;align-items:center">${c.flagged ? '<span class="dot" title="Necesita que lo veas">🚩</span>' : ''}${c.isPaused ? '<span class="dot" title="Bot en pausa">⏸</span>' : ''}${c.unread ? `<span class="badge">${c.unread}</span>` : ''}</div>
+      </div></div>`;
+  }).join('');
+  $$('.conv', el).forEach((n) => n.addEventListener('click', () => openConv(n.dataset.id)));
+}
+
+// ── Detalle del chat ──
+async function openConv(id, silent) {
+  const prevScroll = $('#detail .msgs');
+  const wasAtBottom = !prevScroll || prevScroll.scrollHeight - prevScroll.scrollTop - prevScroll.clientHeight < 60;
+  const draft = $('#replyInput')?.value || '';
+  const showIns = $('#detail .dbody')?.classList.contains('show-insight');
+  let c;
+  try { c = await api('/conversations/' + encodeURIComponent(id)); } catch (e) { if (!silent) toast(e.message, true); return; }
+  CURRENT = id;
+  $('#view-chats').classList.add('has-detail');
+  renderList();
+  const a = c.analysis;
+  const pauseTxt = c.paused ? 'Bot pausado en este chat (manual).' : c.pausedUntil > Date.now() ? `Contestaste tú, el bot regresa ${new Date(c.pausedUntil).toLocaleTimeString('es-MX', { hour: '2-digit', minute: '2-digit' })}.` : '';
+  const sentCls = a?.sentimiento === 'positivo' ? 'pos' : a?.sentimiento === 'negativo' ? 'neg' : '';
+  const leadRows = Object.entries(c.lead || {}).filter(([, v]) => v).map(([k, v]) => `<dt>${LEAD[k] || k}</dt><dd>${esc(v)}</dd>`).join('');
+
+  let lastDay = '';
+  const msgs = c.messages.map((m) => {
+    const d = new Date(m.ts);
+    const day = d.toLocaleDateString('es-MX', { weekday: 'short', day: 'numeric', month: 'short' });
+    const sep = day !== lastDay ? `<div class="daysep">${day}</div>` : ''; lastDay = day;
+    const time = d.toLocaleTimeString('es-MX', { hour: '2-digit', minute: '2-digit' });
+    const label = m.from === 'bot' ? '🤖 asistente · ' : m.from === 'human' ? 'tú · ' : '';
+    return sep + (m.from === 'system' ? `<div class="bubble m-system">${esc(m.text)}</div>` : `<div class="bubble m-${m.from}">${esc(m.text)}<small>${label}${time}</small></div>`);
+  }).join('');
+
+  $('#detail').innerHTML = `
+    <div class="dhead">
+      <button class="btn ghost sm back" id="backBtn">←</button>
+      <div class="avatar" style="background:${color(c.id)};width:38px;height:38px;font-size:15px">${esc(who(c).replace('@', '')[0]?.toUpperCase() || '?')}</div>
+      <div><div class="who">${esc(who(c))}</div><div class="sub">${esc(c.name && c.username ? c.name : 'Instagram')}</div></div>
+      <div class="actions">
+        <button class="btn ghost sm only-narrow" id="insBtn">🧠 Análisis</button>
+        ${c.username ? `<a class="btn ghost sm" href="https://ig.me/m/${esc(c.username)}" target="_blank" rel="noopener">Abrir en IG ↗</a>` : ''}
+        <button class="btn sm ${c.isPaused ? '' : 'ghost'}" id="pauseBtn">${c.isPaused ? '▶ Reactivar bot' : '⏸ Pausar bot aquí'}</button>
+      </div>
+    </div>
+    ${c.flagged ? `<div class="flag">🚩 <span>${esc(c.flagReason || 'Necesita que lo veas tú')}</span>
+      ${c.lastError ? '<button class="btn sm ghost" id="retryBtn">Reintentar</button>' : ''}
+      <button class="btn sm" id="resolveBtn">Listo ✓</button></div>` : ''}
+    ${pauseTxt ? `<div class="pausebar">⏸ ${pauseTxt}</div>` : ''}
+    <div class="dbody ${showIns ? 'show-insight' : ''}">
+      <div style="display:flex;flex-direction:column;min-height:0">
+        <div class="msgs">${msgs}</div>
+        <form class="composer" id="replyForm">
+          <textarea class="field" id="replyInput" rows="1" placeholder="Contesta tú (el bot se pausa en este chat)…"></textarea>
+          <button class="btn tomato" type="submit">Enviar</button>
+        </form>
+      </div>
+      <aside class="insight">
+        <h3>🧠 Lo que entendió</h3>
+        ${a ? `
+          <div class="resumen">${esc(a.resumen)}</div>
+          <dl class="kv">
+            <dt>Intención</dt><dd>${INTENT[a.intencion] || esc(a.intencion)}</dd>
+            <dt>Ánimo</dt><dd><span class="tag ${sentCls}">${esc(a.sentimiento)}</span></dd>
+            <dt>Urgencia</dt><dd><span class="tag ${a.urgencia === 'alta' ? 'neg' : ''}">${esc(a.urgencia)}</span></dd>
+            <dt>Paquete ideal</dt><dd>${PKG[a.paquete_sugerido] || '—'}</dd>
+          </dl>` : '<p style="color:var(--muted)">Aún no hay análisis.</p>'}
+        <h3>✨ Datos del cliente</h3>
+        ${leadRows ? `<dl class="kv">${leadRows}</dl>` : '<p style="color:var(--muted)">Todavía no suelta info.</p>'}
+        ${a?.model ? `<p style="color:var(--muted);font-size:11.5px">Modelo: ${esc(a.model)} · ${ago(a.at)}</p>` : ''}
+      </aside>
+    </div>`;
+
+  const box = $('#detail .msgs');
+  if (!silent || wasAtBottom) box.scrollTop = box.scrollHeight; else box.scrollTop = prevScroll.scrollTop;
+  const input = $('#replyInput');
+  input.value = draft;
+  autoGrow(input);
+  if (!silent) input.focus({ preventScroll: true });
+
+  $('#backBtn').onclick = () => { CURRENT = null; $('#view-chats').classList.remove('has-detail'); renderList(); };
+  $('#insBtn').onclick = () => $('#detail .dbody').classList.toggle('show-insight');
+  $('#pauseBtn').onclick = async () => {
+    try { await api(`/conversations/${encodeURIComponent(id)}/pause`, { method: 'POST', body: { paused: !c.isPaused } }); toast(c.isPaused ? 'Bot reactivado en este chat' : 'Bot pausado aquí'); openConv(id, true); refreshConvs(); }
+    catch (e) { toast(e.message, true); }
+  };
+  $('#resolveBtn') && ($('#resolveBtn').onclick = async () => { await api(`/conversations/${encodeURIComponent(id)}/resolve`, { method: 'POST' }); openConv(id, true); refreshConvs(); });
+  $('#retryBtn') && ($('#retryBtn').onclick = async () => {
+    try { await api(`/conversations/${encodeURIComponent(id)}/retry`, { method: 'POST' }); toast('Reintentando…'); setTimeout(() => openConv(id, true), 2500); }
+    catch (e) { toast(e.message, true); }
+  });
+  input.addEventListener('input', () => autoGrow(input));
+  input.addEventListener('keydown', (e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); $('#replyForm').requestSubmit(); } });
+  $('#replyForm').onsubmit = async (e) => {
+    e.preventDefault();
+    const text = input.value.trim(); if (!text) return;
+    const btn = $('#replyForm button'); btn.disabled = true;
+    try { await api(`/conversations/${encodeURIComponent(id)}/send`, { method: 'POST', body: { text } }); input.value = ''; toast('Enviado ✓'); openConv(id, true); refreshConvs(); }
+    catch (err) { toast(err.message, true); }
+    finally { btn.disabled = false; }
+  };
+}
+
+function autoGrow(t) { t.style.height = 'auto'; t.style.height = Math.min(t.scrollHeight, 140) + 'px'; }
+
+// ── Simulador ──
+const SIM_ID = 'sim-' + Math.random().toString(36).slice(2);
+const simInput = $('#simInput');
+simInput.addEventListener('input', () => autoGrow(simInput));
+simInput.addEventListener('keydown', (e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); $('#simForm').requestSubmit(); } });
+
+function simBubble(from, text) {
+  const box = $('#simMsgs');
+  $('.empty', box)?.remove();
+  box.insertAdjacentHTML('beforeend', `<div class="bubble m-${from}">${esc(text)}</div>`);
+  box.scrollTop = box.scrollHeight;
+}
+
+$('#simForm').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const text = simInput.value.trim(); if (!text) return;
+  simInput.value = ''; autoGrow(simInput);
+  simBubble('user', text);
+  simBubble('system', 'escribiendo…');
+  $('#simSend').disabled = true;
+  try {
+    const { ai, lead } = await api('/simulate', { method: 'POST', body: { sessionId: SIM_ID, text } });
+    $('#simMsgs .m-system:last-child')?.remove();
+    if (ai.responder && ai.respuesta) simBubble('bot', ai.respuesta);
+    else simBubble('system', `No respondería (${INTENT[ai.intencion] || ai.intencion})`);
+    const sentCls = ai.sentimiento === 'positivo' ? 'pos' : ai.sentimiento === 'negativo' ? 'neg' : '';
+    const leadRows = Object.entries(lead || {}).filter(([, v]) => v).map(([k, v]) => `<dt>${LEAD[k] || k}</dt><dd>${esc(v)}</dd>`).join('');
+    $('#simInsight').innerHTML = `
+      <h3>🧠 Lo que entendió</h3>
+      <div class="resumen">${esc(ai.resumen)}</div>
+      <dl class="kv">
+        <dt>Intención</dt><dd>${INTENT[ai.intencion] || esc(ai.intencion)}</dd>
+        <dt>Ánimo</dt><dd><span class="tag ${sentCls}">${esc(ai.sentimiento)}</span></dd>
+        <dt>Urgencia</dt><dd><span class="tag ${ai.urgencia === 'alta' ? 'neg' : ''}">${esc(ai.urgencia)}</span></dd>
+        <dt>Paquete ideal</dt><dd>${PKG[ai.paquete_sugerido] || '—'}</dd>
+        <dt>¿Te avisaría?</dt><dd>${ai.necesita_humano ? '🚩 Sí' : 'No'}</dd>
+      </dl>
+      ${ai.necesita_humano && ai.motivo_humano ? `<div class="flag" style="margin:0 0 16px">🚩 ${esc(ai.motivo_humano)}</div>` : ''}
+      <h3>✨ Datos del cliente</h3>
+      ${leadRows ? `<dl class="kv">${leadRows}</dl>` : '<p style="color:var(--muted)">Todavía no suelta info.</p>'}
+      <p style="color:var(--muted);font-size:11.5px">Modelo: ${esc(ai.model)}</p>`;
+  } catch (err) {
+    $('#simMsgs .m-system:last-child')?.remove();
+    simBubble('system', '❌ ' + err.message);
+  } finally { $('#simSend').disabled = false; simInput.focus(); }
+});
+
+$('#simReset').addEventListener('click', async () => {
+  await api('/simulate', { method: 'POST', body: { sessionId: SIM_ID, reset: true } });
+  $('#simMsgs').innerHTML = '<div class="empty"><span class="big">🧪</span>Conversación nueva. ¡Dale!</div>';
+  $('#simInsight').innerHTML = '<h3>Lo que entendió la IA</h3><p style="color:var(--muted)">Aquí verás el análisis de cada mensaje.</p>';
+});
+
+// ── Cerebro ──
+const BRAIN_FIELDS = ['personality', 'knowledge', 'debounceSeconds', 'humanTakeoverHours', 'historyLimit', 'disclosureText', 'fallbackMessage'];
+function fillBrain(s) {
+  for (const k of BRAIN_FIELDS) $('#' + k).value = s[k] ?? '';
+  $('#disclosureEnabled').checked = !!s.disclosureEnabled;
+  brainDirty = false; $('#brainStatus').textContent = 'Sin cambios';
+}
+$('#brainForm').addEventListener('input', () => { brainDirty = true; $('#brainStatus').textContent = 'Tienes cambios sin guardar'; });
+$('#brainForm').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const body = { disclosureEnabled: $('#disclosureEnabled').checked };
+  for (const k of BRAIN_FIELDS) body[k] = $('#' + k).value;
+  try { await api('/settings', { method: 'PUT', body }); brainDirty = false; toast('Cerebro guardado 🧠'); refreshState(true); }
+  catch (err) { toast(err.message, true); }
+});
+$$('[data-reset]').forEach((b) => b.addEventListener('click', () => {
+  const k = b.dataset.reset;
+  if (!confirm('¿Regresar este texto al original? Pierdes lo que cambiaste (hasta que guardes).')) return;
+  $('#' + k).value = DEFAULTS[k] || '';
+  brainDirty = true; $('#brainStatus').textContent = 'Tienes cambios sin guardar';
+}));
+
+// ── Arranque ──
+if (KEY) api('/state').then(start).catch(() => {});
+</script>
+</body>
+</html>
