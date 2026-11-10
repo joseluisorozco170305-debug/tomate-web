@@ -1,72 +1,48 @@
-import { useEffect, useRef, useState } from "react";
-import { AnimatePresence, motion, useInView } from "framer-motion";
-import { ArrowUpRight, ImageOff, Plus, RotateCw } from "lucide-react";
+import { useState } from "react";
+import { ArrowUpRight, Plus } from "lucide-react";
 import { PROYECTOS, type Proyecto } from "../data/contenido";
 import { Revelar, TituloSube } from "../components/Revelar";
 import { irA } from "../lib/scroll";
 
-type Estado = "espera" | "cargando" | "listo" | "error";
-
+/**
+ * Portada fija del proyecto: nada de iframes (cargaban lento, a veces nunca, y gastaban batería).
+ * Si el proyecto trae `imagen`, se muestra la captura; si no (o si falla), una portada diseñada con su nombre y color.
+ */
 function Vista({ p }: { p: Proyecto }) {
-  const ref = useRef<HTMLDivElement>(null);
-  // la vista en vivo solo corre mientras está cerca de la pantalla (los sitios embebidos consumen mucho)
-  const visible = useInView(ref, { margin: "300px 0px" });
-  const [estado, setEstado] = useState<Estado>("espera");
-  const [intento, setIntento] = useState(0);
-
-  useEffect(() => {
-    if (!visible) {
-      setEstado("espera");
-      return;
-    }
-    setEstado("cargando");
-    const t = window.setTimeout(() => setEstado((e) => (e === "cargando" ? "error" : e)), 12000);
-    return () => clearTimeout(t);
-  }, [visible, intento]);
-
+  const [fallo, setFallo] = useState(false);
   const dominio = p.url.replace(/^https?:\/\//, "").replace(/\/$/, "");
+  const conImagen = Boolean(p.imagen) && !fallo;
 
   return (
-    <div className="ventana" ref={ref}>
+    <div className="ventana" style={{ "--tono": p.color } as React.CSSProperties}>
       <div className="ventana-chrome" aria-hidden="true">
         <i /><i /><i /><span>{dominio}</span>
       </div>
-      {visible && estado !== "error" && (
-        <iframe
-          key={intento}
-          className="ventana-marco"
-          src={p.url}
-          title={`Vista previa de ${p.nombre}`}
+
+      {conImagen ? (
+        <img
+          className="ventana-img"
+          src={p.imagen}
+          alt={`Captura del sitio de ${p.nombre}`}
+          width={1600}
+          height={1040}
           loading="lazy"
-          tabIndex={-1}
-          aria-hidden="true"
-          sandbox="allow-scripts allow-same-origin"
-          onLoad={() => setEstado("listo")}
-          style={{ opacity: estado === "listo" ? 1 : 0, transition: "opacity .6s" }}
+          decoding="async"
+          onError={() => setFallo(true)}
         />
-      )}
-      <AnimatePresence>
-        {(estado === "espera" || estado === "cargando") && (
-          <motion.div className="ventana-carga" aria-hidden="true" exit={{ opacity: 0 }} transition={{ duration: 0.4 }}>
-            <div className="esqueleto" />
-            <div className="esqueleto txt" />
-            <div className="esqueleto txt c" />
-            <div className="cuad"><div className="esqueleto" /><div className="esqueleto" /><div className="esqueleto" /></div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-      {estado === "cargando" && <span className="sr-only" role="status">Cargando vista previa de {p.nombre}</span>}
-      {estado === "error" && (
-        <div className="ventana-sin">
-          <div>
-            <ImageOff style={{ margin: "0 auto 10px", width: 28, height: 28 }} />
-            <p>No pudimos cargar la vista previa.</p>
-            <button className="btn btn-fantasma btn-chico" style={{ marginTop: 12 }} onClick={() => setIntento((n) => n + 1)}>
-              <RotateCw /> Reintentar
-            </button>
+      ) : (
+        <div className="portada" aria-hidden="true">
+          <span className="portada-letra">{p.nombre.charAt(0)}</span>
+          <div className="portada-nav"><b /><i /><i /><i /><em /></div>
+          <div className="portada-cuerpo">
+            <strong className="portada-nombre">{p.nombre}</strong>
+            <span className="portada-linea" />
+            <span className="portada-linea corta" />
           </div>
+          <div className="portada-grid"><i /><i /><i /></div>
         </div>
       )}
+
       <a className="ventana-velo" href={p.url} target="_blank" rel="noopener noreferrer" aria-label={`Abrir ${p.nombre} en una pestaña nueva`}>
         <span className="btn btn-primario btn-chico">Visitar sitio <ArrowUpRight /></span>
       </a>
@@ -81,7 +57,7 @@ export function Portafolio() {
         <div className="cabecera">
           <TituloSube id="port-titulo" lineas={["No te lo contamos,", "te lo enseñamos."]} />
           <Revelar retraso={0.15}>
-            <p>Proyectos reales, en línea y funcionando. Pasa el cursor (o toca) para visitarlos.</p>
+            <p>Proyectos reales, en línea y funcionando. Dale clic a cualquiera y pruébalo tú mismo.</p>
           </Revelar>
         </div>
 

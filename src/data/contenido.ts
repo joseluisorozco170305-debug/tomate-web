@@ -10,87 +10,123 @@ export function enlaceWhatsApp(mensaje: string) {
 
 export const MENSAJE_GENERAL = "Hola Tomate 🍅, quiero información para hacer mi página web.";
 
+export type IconoFuncion = "diseno" | "legal" | "redes" | "analytics" | "panel" | "funciones" | "nfc";
+
+export type Funcion = {
+  icono: IconoFuncion;
+  t: string; // título corto
+  d: string; // gancho de una línea
+};
+
 export type Paquete = {
   id: string;
-  nombre: string;
+  nombre: string; // nombre completo, p. ej. "Paquete Tomate Básico"
+  nivel: string; // la palabra que se destaca en la tarjeta
   gancho: string;
   precio: number;
   mensualidad: number;
   ideal: string;
   destacado?: string;
-  claves: string[];
-  incluye: string[];
+  hereda?: string; // id del paquete cuyo contenido ya trae
+  nuevas: Funcion[]; // lo que este paquete suma
+  incluye: string[]; // detalle completo
   topes: string[];
 };
 
+const BASICO: Funcion[] = [
+  { icono: "diseno", t: "Diseño personalizado", d: "Tu página a tu estilo y a la medida de tu negocio." },
+  { icono: "legal", t: "Políticas y asuntos legales", d: "Aviso de privacidad y términos, en su propia página." },
+  { icono: "redes", t: "Botones a tus redes", d: "Instagram, Facebook, TikTok… a un toque." },
+  { icono: "analytics", t: "Google Analytics", d: "Con informe mensual de cómo te va." },
+];
+
+const AVANZADO: Funcion[] = [
+  { icono: "panel", t: "Panel de control", d: "Cambia textos, fotos, productos y precios tú solito." },
+  { icono: "funciones", t: "Apoyo en funciones", d: "Te echamos la mano con lo que tu negocio necesita." },
+];
+
+const PRO: Funcion[] = [
+  { icono: "nfc", t: "50 estampas NFC", d: "Acercan el celular y se abre tu página al instante." },
+];
+
 export const PAQUETES: Paquete[] = [
   {
-    id: "organices",
-    nombre: "Pa' que te organices",
-    gancho: "Tu negocio en internet, bonito y al punto.",
+    id: "basico",
+    nombre: "Paquete Tomate Básico",
+    nivel: "Básico",
+    gancho: "Tu negocio en internet, bonito, en regla y medido.",
     precio: 800,
     mensualidad: 100,
     ideal: "Para arrancar con todo sin gastar de más.",
     destacado: "El esencial",
-    claves: ["Diseño a tu estilo", "Hasta 2 funciones a medida", "Pedidos directo a WhatsApp", "Logo sencillo incluido"],
+    nuevas: BASICO,
     incluye: [
-      "Diseño de sitio web personalizado",
-      "Funciones a medida para tu negocio o emprendimiento",
-      "Contacto directo a WhatsApp",
-      "Ayuda con diseño de logo y creación de marca",
-      "Sistemas funcionales",
+      "Diseño de página personalizado",
+      "Página de políticas y asuntos legales",
+      "Botones a tus redes sociales",
+      "Tu sitio conectado a Google Analytics",
+      "Informe mensual de visitas",
       "Garantía de un mes",
     ],
     topes: [
       "Sitio de 1 página con varias secciones",
-      "Hasta 2 funciones a medida",
-      "Logo y marca: diseño de un logo sencillo",
+      "Políticas: aviso de privacidad y términos y condiciones",
+      "Informe mensual con los datos de Google Analytics",
     ],
   },
   {
-    id: "controles",
-    nombre: "Pa' que lo controles",
-    gancho: "Cambia precios y fotos tú solito, sin depender de nadie.",
+    id: "avanzado",
+    nombre: "Paquete Tomate Avanzado",
+    nivel: "Avanzado",
+    gancho: "Todo el Básico, y además tú tienes el control.",
     precio: 1200,
     mensualidad: 150,
     ideal: "Para menús y catálogos que cambian seguido.",
     destacado: "El favorito",
-    claves: ["Todo lo del primero", "Panel de control propio", "Hasta 4 funciones a medida", "Catálogo de hasta 50 productos"],
+    hereda: "basico",
+    nuevas: AVANZADO,
     incluye: [
-      "Todo lo de “Pa' que te organices”",
+      "Todo lo del Paquete Tomate Básico",
       "Panel de control funcional",
       "Edita textos y fotos de tu página",
       "Edita tu menú o catálogo: productos y precios",
-      "Gestión de pedidos o inventario",
+      "Apoyo en funciones para tu negocio",
       "Guía en PDF para usar tu panel",
     ],
     topes: [
-      "Hasta 4 funciones a medida",
       "Menú o catálogo de hasta 50 productos",
+      "Pedidos o inventario desde el panel",
     ],
   },
   {
-    id: "ventas",
-    nombre: "Pa' que mejoren las ventas",
-    gancho: "Tu página llega a la mano de tus clientes con un toque.",
+    id: "pro",
+    nombre: "Paquete Tomate Pro",
+    nivel: "Pro",
+    gancho: "Todo lo anterior, y tu página llega a la mano de tus clientes.",
     precio: 1500,
     mensualidad: 150,
     ideal: "Para negocios que quieren que más gente los encuentre.",
     destacado: "El más completo",
-    claves: ["Todo lo del segundo", "50 estampas NFC", "Hasta 6 funciones a medida", "Más alcance que solo redes"],
+    hereda: "avanzado",
+    nuevas: PRO,
     incluye: [
-      "Todo lo de “Pa' que lo controles”",
+      "Todo lo del Paquete Tomate Avanzado",
       "50 estampas NFC conectadas a tu sitio",
       "Acercan el celular y abre tu página al instante",
       "Llega a más lugares que solo redes sociales",
     ],
     topes: [
-      "Hasta 6 funciones a medida",
       "Estampas NFC adhesivas lisas (sin impresión)",
       "Todas abren la página principal de tu negocio",
     ],
   },
 ];
+
+/** Todas las funciones que trae un paquete, contando las que hereda. */
+export function funcionesDe(p: Paquete): Funcion[] {
+  const base = p.hereda ? PAQUETES.find((x) => x.id === p.hereda) : undefined;
+  return [...(base ? funcionesDe(base) : []), ...p.nuevas];
+}
 
 export const MENSUALIDAD_CUBRE =
   "La mensualidad mantiene tu página en línea, segura y al día: correcciones menores y detalles, igual que durante la garantía.";
@@ -103,6 +139,12 @@ export type Proyecto = {
   url: string;
   etiquetas: string[];
   color: string;
+  /**
+   * Opcional: captura fija del sitio (sin iframes, carga al instante).
+   * Guárdala en public/portafolio/ (ideal 1600×1040, .webp o .jpg) y pon aquí la ruta, p. ej. "/portafolio/charolas.webp".
+   * Si no hay imagen, se muestra una portada diseñada con el nombre y los colores del proyecto.
+   */
+  imagen?: string;
 };
 
 export const PROYECTOS: Proyecto[] = [
@@ -153,6 +195,10 @@ export const PREGUNTAS = [
     r: "No. Los paquetes no son una escalera: son tres opciones según tu presupuesto y las funciones que necesitas. Con cualquiera haces una gran inversión.",
   },
   {
+    p: "¿Qué trae el informe mensual de Google Analytics?",
+    r: "Cuánta gente visitó tu página, de dónde llegó (Google, Instagram, una estampa NFC…), qué fue lo más visto y desde qué dispositivos. Te lo mandamos cada mes en un resumen fácil de leer.",
+  },
+  {
     p: "¿Qué son las estampas NFC?",
     r: "Son stickers adhesivos con un chip. Tu cliente acerca su celular y se abre tu página al instante. Puedes pegarlas en tu mostrador, mesas, empaques o donde quieras.",
   },
@@ -165,7 +211,7 @@ export const PREGUNTAS = [
 export const TERMINOS = [
   {
     t: "1. Servicio",
-    c: "Tomate Desarrollo Web diseña y desarrolla sitios web personalizados según el paquete contratado. El alcance de cada paquete (número de páginas, funciones a medida, productos en catálogo y estampas NFC) es el descrito en esta página.",
+    c: "Tomate Desarrollo Web diseña y desarrolla sitios web personalizados según el paquete contratado. El alcance de cada paquete (número de páginas, panel de control, productos en catálogo, informes y estampas NFC) es el descrito en esta página.",
   },
   {
     t: "2. Proceso y aprobación",
@@ -189,10 +235,14 @@ export const TERMINOS = [
   },
   {
     t: "7. Estampas NFC",
-    c: "Las estampas del paquete “Pa' que mejoren las ventas” son adhesivas, lisas y sin impresión, programadas para abrir la página principal del cliente. Su funcionamiento depende de que el celular tenga NFC activado.",
+    c: "Las estampas del Paquete Tomate Pro son adhesivas, lisas y sin impresión, programadas para abrir la página principal del cliente. Su funcionamiento depende de que el celular tenga NFC activado.",
   },
   {
-    t: "8. Portafolio",
+    t: "8. Google Analytics e informes",
+    c: "Conectamos el sitio a Google Analytics para medir visitas de forma anónima y agregada. Cada mes enviamos un informe con los datos principales. Las cifras dependen de lo que registre Google y de la configuración de privacidad de cada visitante.",
+  },
+  {
+    t: "9. Portafolio",
     c: "Podemos mostrar el sitio terminado en nuestro portafolio, salvo que el cliente solicite lo contrario por escrito.",
   },
 ];
